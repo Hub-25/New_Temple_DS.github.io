@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Departmental Structure | New Temple International Ministries</title>
+    <!-- Chosen Palette: Warm Neutrals with Blue Accent -->
+    <!-- Application Structure Plan: A two-column layout with a fixed navigation sidebar listing all departments and a dynamic main content area. Clicking a department in the sidebar instantly updates the content area to show that department's mission and responsibilities. This master-detail view is chosen for its efficiency, allowing users to quickly access specific information without scrolling through a long, linear document, thus improving usability and discoverability of content. -->
+    <!-- Visualization & Content Choices: Report Info: Departmental structure. Goal: Organize & Inform. Presentation: Interactive sidebar navigation and dynamic content panels. Interaction: Click-to-update content view. Justification: Converts a static list into an engaging, user-directed exploration tool. Method: HTML/CSS for structure and icons, Vanilla JS for interactivity. CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lora:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .font-lora {
+            font-family: 'Lora', serif;
+        }
+        /* Simple transition for content fade-in */
+        #content-area > div {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        /* Custom scrollbar for webkit browsers */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #94a3b8;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+
+    <div id="app" class="flex flex-col h-screen">
+        <!-- Header -->
+        <header class="bg-white shadow-md w-full z-10">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 text-center">
+                <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 font-lora">New Temple International Ministries</h1>
+                <p class="text-sm text-slate-500 mt-1">Official Departmental Structure</p>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <div class="flex-1 flex flex-col md:flex-row max-w-7xl w-full mx-auto overflow-hidden">
+            <!-- Sidebar Navigation -->
+            <aside id="sidebar" class="w-full md:w-1/4 lg:w-1/5 bg-white border-r border-slate-200 p-4 md:p-6 custom-scrollbar overflow-y-auto">
+                <h2 class="text-lg font-semibold font-lora text-slate-900 mb-4">Departments</h2>
+                <nav id="department-nav" class="space-y-2">
+                    <!-- Navigation links will be populated by JS -->
+                </nav>
+            </aside>
+
+            <!-- Dynamic Content Display -->
+            <main class="flex-1 p-4 sm:p-6 md:p-8 lg:p-10 custom-scrollbar overflow-y-auto">
+                <div id="content-area">
+                    <!-- Department details will be rendered here by JS -->
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const departments = [
+                {
+                    name: "Pastoral Board & Eldership",
+                    mission: "To provide overall spiritual oversight, leadership, and pastoral care to the congregation. To guard the doctrine of the church, to seek God's direction, and to equip the saints for the work of ministry.",
+                    responsibilities: [
+                        { text: "Setting the spiritual vision and direction for the church.", icon: 'M12 11c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm0 2c-2.21 0-4 1.79-4 4h8c0-2.21-1.79-4-4-4zm8.293-11.293l-1.414 1.414A7.963 7.963 0 0122 12c0 4.418-3.582 8-8 8s-8-3.582-8-8c0-1.764.576-3.408 1.555-4.73l-1.414-1.414A9.964 9.964 0 002 12c0 5.523 4.477 10 10 10s10-4.477 10-10a9.964 9.964 0 00-1.707-5.293z' },
+                        { text: "Preaching and teaching the Word of God.", icon: 'M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253' },
+                        { text: "Providing pastoral care, counseling, and visitation.", icon: 'M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z' },
+                        { text: "Overseeing all church departments to ensure alignment.", icon: 'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4' },
+                        { text: "Training and mentoring leaders within the church.", icon: 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z' },
+                    ]
+                },
+                {
+                    name: "Media & Communications",
+                    mission: "To creatively and effectively capture, package, and broadcast the message of the Gospel and the vision of New Temple International Ministries to our congregation and the world.",
+                    responsibilities: [
+                        { text: "Managing the live stream of all services.", icon: 'M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.636 8.464a5 5 0 000 7.072m-2.828-9.9a9 9 0 000 12.728M12 18a6 6 0 100-12 6 6 0 000 12z' },
+                        { text: "Photography and videography during services and events.", icon: 'M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z' },
+                        { text: "Creating graphics and promotional materials.", icon: 'M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z' },
+                        { text: "Managing and updating all official church social media accounts.", icon: 'M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9V3m0 18a9 9 0 009-9m-9 9a9 9 0 00-9-9' },
+                    ]
+                },
+                {
+                    name: "Ushers & Hospitality",
+                    mission: "To create a warm, welcoming, and orderly atmosphere for every person who walks through our doors, reflecting the love of Christ from the car park to the pew.",
+                    responsibilities: [
+                        { text: "Greeting members and visitors with a friendly smile.", icon: 'M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z' },
+                        { text: "Assisting with seating and ensuring the sanctuary is orderly.", icon: 'M8 14v-4c0-1.1.9-2 2-2h4a2 2 0 012 2v4M8 14h8M8 14l-2-2m10 2l2-2' },
+                        { text: "Collecting offerings and tithes in an orderly manner.", icon: 'M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z' },
+                        { text: "Providing information to first-time visitors.", icon: 'M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.79 4 4s-1.79 4-4 4c-1.742 0-3.223-.835-3.772-2zM12 18a6 6 0 100-12 6 6 0 000 12z' },
+                    ]
+                },
+                {
+                    name: "Sound & Technical",
+                    mission: "To ensure a distraction-free worship experience by providing clear, intelligible, and high-quality audio and visual support for all services and events.",
+                    responsibilities: [
+                        { text: "Operating the sound mixing desk for services.", icon: 'M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z' },
+                        { text: "Managing all microphones (lapel, handheld, choir).", icon: 'M5 3a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2V5a2 2 0 00-2-2H5zm0 2h10v10H5V5zm2 4h6m-3-2v4' },
+                        { text: "Operating the presentation software for lyrics and scriptures.", icon: 'M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z' },
+                    ]
+                },
+                {
+                    name: "Worship Team",
+                    mission: "To lead the congregation into the presence of God through anointed praise and worship, setting the spiritual atmosphere for the Word of God to be received.",
+                    responsibilities: [
+                        { text: "Prayerfully selecting songs for each service.", icon: 'M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 6l12-3' },
+                        { text: "Organizing and leading weekly rehearsals.", icon: 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z' },
+                        { text: "Mentoring and developing new team members.", icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z' },
+                    ]
+                },
+                {
+                    name: "Treasury & Finance",
+                    mission: "To manage the financial resources God has entrusted to the church with the highest levels of integrity, transparency, and accountability.",
+                    responsibilities: [
+                        { text: "Accurately counting, recording, and banking all tithes and offerings.", icon: 'M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z' },
+                        { text: "Preparing monthly and annual financial reports.", icon: 'M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z' },
+                        { text: "Managing the church budget and processing payments.", icon: 'M4 7v10m12-10v10m-8 2h4m-6-14h8a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V5a2 2 0 012-2z' },
+                    ]
+                },
+                {
+                    name: "Administration",
+                    mission: "To provide the organizational backbone of the church, ensuring that all ministries have the administrative support they need to function effectively and fulfill their vision.",
+                    responsibilities: [
+                        { text: "Managing the central church calendar and booking of facilities.", icon: 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z' },
+                        { text: "Handling official church communications.", icon: 'M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z' },
+                        { text: "Maintaining the church membership database.", icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6' },
+                    ]
+                },
+                {
+                    name: "MC & Service Coordination",
+                    mission: "To facilitate the smooth, timely, and Spirit-led flow of our church services and events, ensuring all elements are presented with excellence and clarity.",
+                    responsibilities: [
+                        { text: "Preparing the program/order of service.", icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01' },
+                        { text: "Making all official announcements clearly.", icon: 'M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-2.236 9.168-5.584C18.375 1.163 17.75 0 16.924 0H7A7 7 0 000 7v6a4 4 0 004 4h1.436z' },
+                        { text: "Ensuring the service adheres to the planned schedule.", icon: 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z' },
+                    ]
+                },
+                 {
+                    name: "Office of Events",
+                    mission: "To plan, coordinate, and execute all church events with excellence, creativity, and spiritual purpose, creating memorable experiences that foster fellowship and growth.",
+                    responsibilities: [
+                        { text: "Planning and managing logistics for all special events.", icon: 'M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4' },
+                        { text: "Developing event concepts, themes, and budgets.", icon: 'M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z' },
+                        { text: "Coordinating with other departments for event support.", icon: 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0' },
+                        { text: "Overseeing event setup, execution, and breakdown.", icon: 'M5 12V6a2 2 0 012-2h10a2 2 0 012 2v6m-7-3h4' },
+                    ]
+                },
+                {
+                    name: "Protocol Department",
+                    mission: "To provide seamless personal and logistical support to the Senior Pastor and guest ministers, ensuring they are free from distractions and can minister effectively.",
+                    responsibilities: [
+                        { text: "Coordinating the Senior Pastor's travel and transportation.", icon: 'M12 11c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm0 2c-2.21 0-4 1.79-4 4h8c0-2.21-1.79-4-4-4zm-7-2a1 1 0 011-1h12a1 1 0 110 2H6a1 1 0 01-1-1zm14.155 8.845A9.946 9.946 0 0022 12c0-5.523-4.477-10-10-10S2 6.477 2 12a9.946 9.946 0 002.845 6.845l.002.001.002.001L6.4 18H17.6l1.553.846.002-.001z' },
+                        { text: "Ensuring all the Pastor's needs are met.", icon: 'M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z' },
+                        { text: "Providing security and maintaining order.", icon: 'M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z' },
+                        { text: "Caring for the needs of guest speakers.", icon: 'M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207' },
+                    ]
+                }
+            ];
+
+            const navContainer = document.getElementById('department-nav');
+            const contentArea = document.getElementById('content-area');
+
+            function renderDepartment(index) {
+                const dept = departments[index];
+                if (!dept) return;
+                
+                let responsibilitiesHtml = dept.responsibilities.map(resp => `
+                    <div class="flex items-start space-x-4">
+                        <div class="flex-shrink-0">
+                            <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-lg flex items-center justify-center">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                   <path d="${resp.icon}"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        <div>
+                            <p class="text-slate-600">${resp.text}</p>
+                        </div>
+                    </div>
+                `).join('');
+
+                contentArea.innerHTML = `
+                    <div class="bg-white p-6 sm:p-8 rounded-lg shadow-lg">
+                        <h2 class="text-3xl md:text-4xl font-bold font-lora text-slate-900">${dept.name}</h2>
+                        <div class="w-24 h-1 bg-blue-600 my-4 rounded"></div>
+                        
+                        <div class="mt-8">
+                            <h3 class="text-xl font-semibold font-lora text-slate-800 mb-2">Our Mission</h3>
+                            <p class="text-slate-600 leading-relaxed">${dept.mission}</p>
+                        </div>
+
+                        <div class="mt-10">
+                            <h3 class="text-xl font-semibold font-lora text-slate-800 mb-6">Key Responsibilities</h3>
+                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-x-8 gap-y-6">
+                                ${responsibilitiesHtml}
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                // Update active state in nav
+                document.querySelectorAll('#department-nav a').forEach((link, i) => {
+                    if (i === index) {
+                        link.classList.add('bg-blue-100', 'text-blue-700', 'font-semibold');
+                        link.classList.remove('text-slate-600', 'hover:bg-slate-100');
+                    } else {
+                        link.classList.remove('bg-blue-100', 'text-blue-700', 'font-semibold');
+                        link.classList.add('text-slate-600', 'hover:bg-slate-100');
+                    }
+                });
+            }
+
+            departments.forEach((dept, index) => {
+                const link = document.createElement('a');
+                link.href = '#';
+                link.textContent = dept.name;
+                link.className = 'block px-4 py-2.5 rounded-md text-sm transition-colors duration-200';
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    renderDepartment(index);
+                });
+                navContainer.appendChild(link);
+            });
+
+            // Initial render
+            renderDepartment(0);
+        });
+    </script>
+</body>
+</html>
