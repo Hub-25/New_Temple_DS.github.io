@@ -1,428 +1,714 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Departmental Structure | New Temple International Ministries</title>
-    <!-- Chosen Palette: Warm Neutrals with Blue Accent -->
-    <!-- Application Structure Plan: A two-column layout with a fixed navigation sidebar listing all departments and a dynamic main content area. Clicking a department in the sidebar instantly updates the content area to show that department's mission and responsibilities. This master-detail view is chosen for its efficiency, allowing users to quickly access specific information without scrolling through a long, linear document, thus improving usability and discoverability of content. -->
-    <!-- Visualization & Content Choices: Report Info: Departmental structure. Goal: Organize & Inform. Presentation: Interactive sidebar navigation and dynamic content panels. Interaction: Click-to-update content view. Justification: Converts a static list into an engaging, user-directed exploration tool. Method: HTML/CSS for structure and icons, Vanilla JS for interactivity. CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
-    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lora:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-        }
-        .font-lora {
-            font-family: 'Lora', serif;
-        }
-        #content-area > div, #edit-modal {
-            animation: fadeIn 0.5s ease-in-out;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .custom-scrollbar::-webkit-scrollbar {
-            width: 8px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-            background: #f1f5f9;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: #94a3b8;
-            border-radius: 4px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-            background: #64748b;
-        }
-        .modal-content {
-             animation: slideUp 0.4s ease-out;
-        }
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(30px) scale(0.98); }
-            to { opacity: 1; transform: translateY(0) scale(1); }
-        }
-    </style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Departmental Structure | New Temple International Ministries</title>
+
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lora:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --accent: #2563eb; /* blue-600 */
+      --muted: #64748b;  /* slate-500-ish */
+    }
+
+    html {
+      scroll-behavior: smooth; /* smooth scroll where applicable */
+    }
+
+    body { font-family: 'Inter', sans-serif; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; }
+
+    .font-lora { font-family: 'Lora', serif; }
+
+    /* subtle background */
+    body {
+      background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 60%);
+      color: #0f172a;
+    }
+
+    /* card fade/slide animation */
+    .fade-slide {
+      opacity: 0;
+      transform: translateY(12px) scale(0.995);
+      transition: opacity 420ms ease, transform 420ms cubic-bezier(.2,.9,.22,1);
+      will-change: opacity, transform;
+    }
+    .fade-slide.show {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+
+    /* soft glass panel for header */
+    .glass {
+      background: linear-gradient(180deg, rgba(255,255,255,0.72), rgba(255,255,255,0.6));
+      backdrop-filter: blur(6px);
+    }
+
+    /* custom scrollbar for webkit */
+    .custom-scrollbar::-webkit-scrollbar { width: 8px; height: 8px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(100,116,139,0.28); border-radius: 6px; }
+    .custom-scrollbar:hover::-webkit-scrollbar-thumb { background: rgba(100,116,139,0.45); }
+
+    /* mobile sidebar hidden transform handled in js/tailwind classes */
+    /* modal anim */
+    .modal-enter { animation: modalIn 280ms ease-out both; }
+    @keyframes modalIn {
+      from { opacity: 0; transform: translateY(18px) scale(.995); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    /* tiny focus ring override for visibility */
+    :focus { outline: 3px solid rgba(37,99,235,0.18); outline-offset: 2px; }
+
+    /* reduce text transform */
+    .no-emdash::after { content: ""; } /* placeholder to respect user's no em dash preference */
+  </style>
 </head>
-<body class="bg-slate-50 text-slate-800">
+<body class="antialiased">
 
-    <div id="app" class="flex flex-col h-screen">
-        <!-- Header -->
-        <header class="bg-white shadow-md w-full z-20">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
-                <!-- Mobile Menu Button -->
-                <button id="menu-btn" class="p-2 rounded-md text-slate-500 hover:text-slate-900 hover:bg-slate-100 md:hidden">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"></path></svg>
+  <div id="app" class="min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="glass sticky top-0 z-30 border-b border-slate-200">
+      <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center gap-3">
+        <!-- Mobile menu toggle -->
+        <button id="menu-btn" class="md:hidden p-2 rounded-md text-slate-600 hover:bg-slate-100" aria-label="Open departments menu">
+          <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
+
+        <div class="flex-1 text-center md:text-left">
+          <h1 class="text-lg sm:text-2xl font-lora font-bold text-slate-900">New Temple International Ministries</h1>
+          <p class="text-xs text-slate-500">Official Departmental Structure</p>
+        </div>
+
+        <div class="hidden md:flex items-center gap-3">
+          <input id="nav-search" type="search" placeholder="Search departments" class="px-3 py-2 border border-slate-200 rounded-md text-sm w-60 focus:border-blue-500" aria-label="Search departments">
+          <button id="add-dept-btn" class="px-3 py-2 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700">Add</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="flex-1 relative">
+      <div class="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-6 px-4 py-6">
+        <!-- Sidebar -->
+        <aside id="sidebar" class="md:col-span-1 relative z-10">
+          <div id="sidebar-panel" class="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden h-[calc(100vh-120px)] custom-scrollbar md:h-auto md:max-h-[calc(100vh-140px)]">
+            <div class="px-4 py-3 flex items-center justify-between border-b border-slate-100">
+              <h2 class="text-sm font-semibold font-lora text-slate-900">Departments</h2>
+              <button id="close-menu-btn" class="md:hidden p-1 text-slate-500 hover:bg-slate-100 rounded" aria-label="Close menu">
+                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+              </button>
+            </div>
+
+            <div class="px-3 py-2">
+              <div class="relative">
+                <input id="sidebar-search" type="search" placeholder="Filter departments" class="w-full px-3 py-2 text-sm border rounded-md focus:border-blue-500" aria-label="Filter departments">
+                <button id="mobile-add-btn" class="md:hidden absolute right-2 top-2 p-1 text-slate-500" title="Add department (mobile)">
+                  <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                 </button>
+              </div>
 
-                <div class="text-center flex-grow">
-                    <h1 class="text-xl sm:text-3xl font-bold text-slate-900 font-lora">New Temple International Ministries</h1>
-                    <p class="text-sm text-slate-500 mt-1">Official Departmental Structure</p>
-                </div>
-                
-                <div class="w-10 md:hidden" aria-hidden="true"></div>
+              <nav id="department-nav" class="mt-3 space-y-1" aria-label="Department list">
+                <!-- populated by JS -->
+              </nav>
             </div>
-        </header>
 
-        <!-- Main Content Area -->
-        <div class="flex-1 flex max-w-7xl w-full mx-auto overflow-hidden relative">
-            <div id="menu-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-20 hidden md:hidden"></div>
-            
-            <aside id="sidebar" class="fixed top-0 left-0 z-30 w-64 h-full bg-white border-r border-slate-200 p-4 md:p-6 custom-scrollbar overflow-y-auto transform -translate-x-full transition-transform duration-300 ease-in-out md:relative md:translate-x-0 md:w-1/4 lg:w-1/5 flex flex-col">
-                <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-lg font-semibold font-lora text-slate-900">Departments</h2>
-                    <button id="close-menu-btn" class="p-2 rounded-md text-slate-500 hover:text-slate-900 hover:bg-slate-100 md:hidden">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                    </button>
-                </div>
-                <nav id="department-nav" class="space-y-2 flex-grow">
-                </nav>
-                 <div class="mt-4">
-                    <button id="add-dept-btn" class="w-full flex items-center justify-center px-4 py-2.5 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors duration-200">
-                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
-                        Add Department
-                    </button>
-                </div>
-            </aside>
+            <div class="px-4 py-3 border-t border-slate-100">
+              <p class="text-xs text-slate-500">Tap a department to view details. Use the edit button in the top-right of the content panel to update.</p>
+            </div>
+          </div>
+        </aside>
 
-            <main class="flex-1 p-4 sm:p-6 md:p-8 lg:p-10 custom-scrollbar overflow-y-auto">
-                <div id="content-area">
-                </div>
-            </main>
-        </div>
-    </div>
-    
+        <!-- Content area -->
+        <section id="content-area" class="md:col-span-3">
+          <!-- content injected here -->
+        </section>
+      </div>
+    </main>
+
     <!-- Edit Modal -->
-    <div id="edit-modal" class="fixed inset-0 z-40 bg-black bg-opacity-60 items-center justify-center p-4 hidden">
-        <div class="modal-content bg-white rounded-lg shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col">
-            <div class="p-6 border-b">
-                 <h3 id="modal-title" class="text-2xl font-bold font-lora">Edit Department</h3>
+    <div id="edit-modal" class="fixed inset-0 z-40 hidden items-center justify-center px-4">
+      <div class="absolute inset-0 bg-black/50" id="modal-backdrop"></div>
+      <div class="relative w-full max-w-2xl modal-enter">
+        <div class="bg-white rounded-xl shadow-2xl overflow-hidden">
+          <div class="px-6 py-4 border-b">
+            <h3 id="modal-title" class="text-lg font-semibold font-lora">Edit Department</h3>
+          </div>
+          <div class="px-6 py-5 max-h-[60vh] overflow-y-auto custom-scrollbar">
+            <form id="edit-form" class="space-y-4">
+              <input type="hidden" id="edit-dept-index">
+              <div>
+                <label class="block text-sm font-medium text-slate-700">Department name</label>
+                <input id="dept-name" class="mt-1 w-full rounded-md border px-3 py-2 text-sm" />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700">Mission statement</label>
+                <textarea id="dept-mission" rows="3" class="mt-1 w-full rounded-md border px-3 py-2 text-sm"></textarea>
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-sm font-medium text-slate-700">Head of Department</label>
+                  <input id="dept-hod" class="mt-1 w-full rounded-md border px-3 py-2 text-sm" />
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-slate-700">Deputy HOD</label>
+                  <input id="dept-deputy" class="mt-1 w-full rounded-md border px-3 py-2 text-sm" />
+                </div>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700">Team members (one per line)</label>
+                <textarea id="dept-members" rows="4" class="mt-1 w-full rounded-md border px-3 py-2 text-sm"></textarea>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700">Responsibilities (one per line)</label>
+                <textarea id="dept-resp" rows="5" class="mt-1 w-full rounded-md border px-3 py-2 text-sm" placeholder="Example: Greeting visitors"></textarea>
+                <p class="text-xs text-slate-400 mt-1">If you want icons for responsibilities, leave values and I will add defaults.</p>
+              </div>
+            </form>
+          </div>
+          <div class="px-6 py-4 border-t flex items-center justify-between bg-slate-50">
+            <button id="delete-dept-btn" class="px-3 py-2 bg-red-600 text-white rounded-md text-sm hover:bg-red-700">Delete</button>
+            <div class="flex gap-2">
+              <button id="cancel-edit-btn" class="px-3 py-2 bg-white border rounded-md text-sm">Cancel</button>
+              <button id="save-dept-btn" class="px-3 py-2 bg-blue-600 text-white rounded-md text-sm">Save</button>
             </div>
-            <div class="p-6 overflow-y-auto custom-scrollbar">
-                <form id="edit-form" class="space-y-4">
-                    <input type="hidden" id="edit-dept-index">
-                    <div>
-                        <label for="dept-name" class="block text-sm font-medium text-slate-700">Department Name</label>
-                        <input type="text" id="dept-name" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
-                    </div>
-                     <div>
-                        <label for="dept-mission" class="block text-sm font-medium text-slate-700">Mission Statement</label>
-                        <textarea id="dept-mission" rows="3" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"></textarea>
-                    </div>
-                    <div>
-                        <label for="dept-hod" class="block text-sm font-medium text-slate-700">Head of Department (HOD)</label>
-                        <input type="text" id="dept-hod" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
-                    </div>
-                    <div>
-                        <label for="dept-deputy" class="block text-sm font-medium text-slate-700">Deputy HOD</label>
-                        <input type="text" id="dept-deputy" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
-                    </div>
-                    <div>
-                        <label for="dept-members" class="block text-sm font-medium text-slate-700">Team Members (one per line)</label>
-                        <textarea id="dept-members" rows="4" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"></textarea>
-                    </div>
-                </form>
-            </div>
-            <div class="p-6 border-t flex justify-between items-center bg-slate-50 rounded-b-lg">
-                 <button id="delete-dept-btn" class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors duration-200">Delete</button>
-                 <div>
-                    <button id="cancel-edit-btn" class="px-4 py-2 text-sm font-medium text-slate-700 bg-slate-200 rounded-md hover:bg-slate-300 transition-colors duration-200 mr-2">Cancel</button>
-                    <button id="save-dept-btn" class="px-6 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors duration-200">Save Changes</button>
-                 </div>
-            </div>
+          </div>
         </div>
+      </div>
     </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            let departments = [
-                {
-                    name: "Pastoral Board & Eldership",
-                    mission: "To provide overall spiritual oversight, leadership, and pastoral care to the congregation. To guard the doctrine of the church, to seek God's direction, and to equip the saints for the work of ministry.",
-                    hod: "Senior Pastor [Name]",
-                    deputy: "Lead Elder [Name]",
-                    members: ["Elder [Name]", "Elder [Name]", "Associate Pastor [Name]"],
-                    responsibilities: [
-                        { text: "Setting the spiritual vision and direction for the church.", icon: 'M12 11c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm0 2c-2.21 0-4 1.79-4 4h8c0-2.21-1.79-4-4-4zm8.293-11.293l-1.414 1.414A7.963 7.963 0 0122 12c0 4.418-3.582 8-8 8s-8-3.582-8-8c0-1.764.576-3.408 1.555-4.73l-1.414-1.414A9.964 9.964 0 002 12c0 5.523 4.477 10 10 10s10-4.477 10-10a9.964 9.964 0 00-1.707-5.293z' },
-                        { text: "Preaching and teaching the Word of God.", icon: 'M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253' },
-                    ]
-                },
-                {
-                    name: "Media & Communications",
-                    mission: "To creatively and effectively capture, package, and broadcast the message of the Gospel and the vision of New Temple International Ministries to our congregation and the world.",
-                    hod: "[Click to Add]",
-                    deputy: "[Click to Add]",
-                    members: [],
-                    responsibilities: [
-                        { text: "Managing the live stream of all services.", icon: 'M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.636 8.464a5 5 0 000 7.072m-2.828-9.9a9 9 0 000 12.728M12 18a6 6 0 100-12 6 6 0 000 12z' },
-                        { text: "Photography and videography during services and events.", icon: 'M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z' },
-                    ]
-                },
-                {
-                    name: "Ushers & Hospitality",
-                    mission: "To create a warm, welcoming, and orderly atmosphere for every person who walks through our doors, reflecting the love of Christ from the car park to the pew.",
-                    hod: "[Click to Add]",
-                    deputy: "[Click to Add]",
-                    members: [],
-                    responsibilities: [
-                        { text: "Greeting members and visitors with a friendly smile.", icon: 'M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z' },
-                        { text: "Assisting with seating and ensuring the sanctuary is orderly.", icon: 'M8 14v-4c0-1.1.9-2 2-2h4a2 2 0 012 2v4M8 14h8M8 14l-2-2m10 2l2-2' },
-                    ]
-                },
-                {
-                    name: "Sound & Technical",
-                    mission: "To ensure a distraction-free worship experience by providing clear, intelligible, and high-quality audio and visual support for all services and events.",
-                    hod: "[Click to Add]",
-                    deputy: "[Click to Add]",
-                    members: [],
-                    responsibilities: [
-                        { text: "Operating the sound mixing desk for services.", icon: 'M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z' },
-                        { text: "Operating the presentation software for lyrics and scriptures.", icon: 'M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z' },
-                    ]
-                },
-                {
-                    name: "Worship Team",
-                    mission: "To lead the congregation into the presence of God through anointed praise and worship, setting the spiritual atmosphere for the Word of God to be received.",
-                    hod: "[Click to Add]",
-                    deputy: "[Click to Add]",
-                    members: [],
-                    responsibilities: [
-                        { text: "Prayerfully selecting songs for each service.", icon: 'M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 6l12-3' },
-                        { text: "Organizing and leading weekly rehearsals.", icon: 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z' },
-                    ]
-                },
-                {
-                    name: "Treasury & Finance",
-                    mission: "To manage the financial resources God has entrusted to the church with the highest levels of integrity, transparency, and accountability.",
-                    hod: "[Click to Add]",
-                    deputy: "[Click to Add]",
-                    members: [],
-                    responsibilities: [
-                        { text: "Accurately counting, recording, and banking all tithes and offerings.", icon: 'M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z' },
-                        { text: "Preparing monthly and annual financial reports.", icon: 'M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z' },
-                    ]
-                },
-                {
-                    name: "Administration",
-                    mission: "To provide the organizational backbone of the church, ensuring that all ministries have the administrative support they need to function effectively and fulfill their vision.",
-                    hod: "[Click to Add]",
-                    deputy: "[Click to Add]",
-                    members: [],
-                    responsibilities: [
-                        { text: "Managing the central church calendar and booking of facilities.", icon: 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z' },
-                        { text: "Handling official church communications.", icon: 'M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z' },
-                    ]
-                },
-                {
-                    name: "MC & Service Coordination",
-                    mission: "To facilitate the smooth, timely, and Spirit-led flow of our church services and events, ensuring all elements are presented with excellence and clarity.",
-                    hod: "[Click to Add]",
-                    deputy: "[Click to Add]",
-                    members: [],
-                    responsibilities: [
-                        { text: "Preparing the program/order of service.", icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01' },
-                        { text: "Making all official announcements clearly.", icon: 'M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-2.236 9.168-5.584C18.375 1.163 17.75 0 16.924 0H7A7 7 0 000 7v6a4 4 0 004 4h1.436z' },
-                    ]
-                },
-                 {
-                    name: "Office of Events",
-                    mission: "To plan, coordinate, and execute all church events with excellence, creativity, and spiritual purpose, creating memorable experiences that foster fellowship and growth.",
-                    hod: "[Click to Add]",
-                    deputy: "[Click to Add]",
-                    members: [],
-                    responsibilities: [
-                        { text: "Planning and managing logistics for all special events.", icon: 'M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4' },
-                        { text: "Developing event concepts, themes, and budgets.", icon: 'M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z' },
-                    ]
-                },
-                {
-                    name: "Protocol Department",
-                    mission: "To provide seamless personal and logistical support to the Senior Pastor and guest ministers, ensuring they are free from distractions and can minister effectively.",
-                    hod: "[Click to Add]",
-                    deputy: "[Click to Add]",
-                    members: [],
-                    responsibilities: [
-                        { text: "Coordinating the Senior Pastor's travel and transportation.", icon: 'M12 11c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm0 2c-2.21 0-4 1.79-4 4h8c0-2.21-1.79-4-4-4zm-7-2a1 1 0 011-1h12a1 1 0 110 2H6a1 1 0 01-1-1zm14.155 8.845A9.946 9.946 0 0022 12c0-5.523-4.477-10-10-10S2 6.477 2 12a9.946 9.946 0 002.845 6.845l.002.001.002.001L6.4 18H17.6l1.553.846.002-.001z' },
-                        { text: "Caring for the needs of guest speakers.", icon: 'M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207' },
-                    ]
-                }
-            ];
+  <!-- Optional toast for save feedback -->
+  <div id="toast" class="fixed right-4 bottom-6 z-50 hidden">
+    <div class="bg-slate-900 text-white px-4 py-2 rounded-md shadow">Saved</div>
+  </div>
 
-            const navContainer = document.getElementById('department-nav');
-            const contentArea = document.getElementById('content-area');
-            const menuBtn = document.getElementById('menu-btn');
-            const closeMenuBtn = document.getElementById('close-menu-btn');
-            const sidebar = document.getElementById('sidebar');
-            const menuOverlay = document.getElementById('menu-overlay');
-            const editModal = document.getElementById('edit-modal');
-            const cancelBtn = document.getElementById('cancel-edit-btn');
-            const saveBtn = document.getElementById('save-dept-btn');
-            const addBtn = document.getElementById('add-dept-btn');
-            const deleteBtn = document.getElementById('delete-dept-btn');
-            
-            let activeIndex = 0;
+  <script>
+    // ---------------------------
+    // Data: all departments and content preserved
+    // ---------------------------
+    const departments = [
+      {
+        name: "Pastoral Board & Eldership",
+        mission: "To provide overall spiritual oversight, leadership, and pastoral care to the congregation. To guard the doctrine of the church, to seek God's direction, and to equip the saints for the work of ministry.",
+        hod: "Senior Pastor [Name]",
+        deputy: "Lead Elder [Name]",
+        members: ["Elder [Name]", "Elder [Name]", "Associate Pastor [Name]"],
+        responsibilities: [
+          { text: "Setting the spiritual vision and direction for the church.", icon: 'M12 11c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm0 2c-2.21 0-4 1.79-4 4h8c0-2.21-1.79-4-4-4zm8.293-11.293l-1.414 1.414A7.963 7.963 0 0122 12c0 4.418-3.582 8-8 8s-8-3.582-8-8c0-1.764.576-3.408 1.555-4.73l-1.414-1.414A9.964 9.964 0 002 12c0 5.523 4.477 10 10 10s10-4.477 10-10a9.964 9.964 0 00-1.707-5.293z' },
+          { text: "Preaching and teaching the Word of God.", icon: 'M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253' },
+          { text: "Providing pastoral care, counseling, and visitation.", icon: 'M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z' },
+          { text: "Overseeing all church departments to ensure alignment.", icon: 'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4' },
+          { text: "Training and mentoring leaders within the church.", icon: 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z' },
+        ]
+      },
+      {
+        name: "Media & Communications",
+        mission: "To creatively and effectively capture, package, and broadcast the message of the Gospel and the vision of New Temple International Ministries to our congregation and the world.",
+        hod: "[Click to Add]",
+        deputy: "[Click to Add]",
+        members: [],
+        responsibilities: [
+          { text: "Managing the live stream of all services.", icon: 'M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.636 8.464a5 5 0 000 7.072m-2.828-9.9a9 9 0 000 12.728M12 18a6 6 0 100-12 6 6 0 000 12z' },
+          { text: "Photography and videography during services and events.", icon: 'M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z' },
+          { text: "Creating graphics and promotional materials.", icon: 'M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z' },
+          { text: "Managing and updating all official church social media accounts.", icon: 'M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9V3m0 18a9 9 0 009-9m-9 9a9 9 0 00-9-9' },
+        ]
+      },
+      {
+        name: "Ushers & Hospitality",
+        mission: "To create a warm, welcoming, and orderly atmosphere for every person who walks through our doors, reflecting the love of Christ from the car park to the pew.",
+        hod: "[Click to Add]",
+        deputy: "[Click to Add]",
+        members: [],
+        responsibilities: [
+          { text: "Greeting members and visitors with a friendly smile.", icon: 'M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z' },
+          { text: "Assisting with seating and ensuring the sanctuary is orderly.", icon: 'M8 14v-4c0-1.1.9-2 2-2h4a2 2 0 012 2v4M8 14h8M8 14l-2-2m10 2l2-2' },
+          { text: "Collecting offerings and tithes in an orderly manner.", icon: 'M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2V8a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z' },
+          { text: "Providing information to first-time visitors.", icon: 'M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.79 4 4s-1.79 4-4 4c-1.742 0-3.223-.835-3.772-2zM12 18a6 6 0 100-12 6 6 0 000 12z' },
+        ]
+      },
+      {
+        name: "Sound & Technical",
+        mission: "To ensure a distraction-free worship experience by providing clear, intelligible, and high-quality audio and visual support for all services and events.",
+        hod: "[Click to Add]",
+        deputy: "[Click to Add]",
+        members: [],
+        responsibilities: [
+          { text: "Operating the sound mixing desk for services.", icon: 'M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z' },
+          { text: "Managing all microphones (lapel, handheld, choir).", icon: 'M5 3a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2V5a2 2 0 00-2-2H5zm0 2h10v10H5V5zm2 4h6m-3-2v4' },
+          { text: "Operating the presentation software for lyrics and scriptures.", icon: 'M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z' },
+        ]
+      },
+      {
+        name: "Worship Team",
+        mission: "To lead the congregation into the presence of God through anointed praise and worship, setting the spiritual atmosphere for the Word of God to be received.",
+        hod: "[Click to Add]",
+        deputy: "[Click to Add]",
+        members: [],
+        responsibilities: [
+          { text: "Prayerfully selecting songs for each service.", icon: 'M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 6l12-3' },
+          { text: "Organizing and leading weekly rehearsals.", icon: 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z' },
+          { text: "Mentoring and developing new team members.", icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z' },
+        ]
+      },
+      {
+        name: "Treasury & Finance",
+        mission: "To manage the financial resources God has entrusted to the church with the highest levels of integrity, transparency, and accountability.",
+        hod: "[Click to Add]",
+        deputy: "[Click to Add]",
+        members: [],
+        responsibilities: [
+          { text: "Accurately counting, recording, and banking all tithes and offerings.", icon: 'M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z' },
+          { text: "Preparing monthly and annual financial reports.", icon: 'M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z' },
+          { text: "Managing the church budget and processing payments.", icon: 'M4 7v10m12-10v10m-8 2h4m-6-14h8a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V5a2 2 0 012-2z' },
+        ]
+      },
+      {
+        name: "Administration",
+        mission: "To provide the organizational backbone of the church, ensuring that all ministries have the administrative support they need to function effectively and fulfill their vision.",
+        hod: "[Click to Add]",
+        deputy: "[Click to Add]",
+        members: [],
+        responsibilities: [
+          { text: "Managing the central church calendar and booking of facilities.", icon: 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z' },
+          { text: "Handling official church communications.", icon: 'M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z' },
+          { text: "Maintaining the church membership database.", icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6' },
+        ]
+      },
+      {
+        name: "MC & Service Coordination",
+        mission: "To facilitate the smooth, timely, and Spirit-led flow of our church services and events, ensuring all elements are presented with excellence and clarity.",
+        hod: "[Click to Add]",
+        deputy: "[Click to Add]",
+        members: [],
+        responsibilities: [
+          { text: "Preparing the program/order of service.", icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01' },
+          { text: "Making all official announcements clearly.", icon: 'M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-2.236 9.168-5.584C18.375 1.163 17.75 0 16.924 0H7A7 7 0 000 7v6a4 4 0 004 4h1.436z' },
+          { text: "Ensuring the service adheres to the planned schedule.", icon: 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z' },
+        ]
+      },
+      {
+        name: "Office of Events",
+        mission: "To plan, coordinate, and execute all church events with excellence, creativity, and spiritual purpose, creating memorable experiences that foster fellowship and growth.",
+        hod: "[Click to Add]",
+        deputy: "[Click to Add]",
+        members: [],
+        responsibilities: [
+          { text: "Planning and managing logistics for all special events.", icon: 'M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4' },
+          { text: "Developing event concepts, themes, and budgets.", icon: 'M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z' },
+          { text: "Coordinating with other departments for event support.", icon: 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0' },
+        ]
+      },
+      {
+        name: "Protocol Department",
+        mission: "To provide seamless personal and logistical support to the Senior Pastor and guest ministers, ensuring they are free from distractions and can minister effectively.",
+        hod: "[Click to Add]",
+        deputy: "[Click to Add]",
+        members: [],
+        responsibilities: [
+          { text: "Coordinating the Senior Pastor's travel and transportation.", icon: 'M12 11c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm0 2c-2.21 0-4 1.79-4 4h8c0-2.21-1.79-4-4-4zm-7-2a1 1 0 011-1h12a1 1 0 110 2H6a1 1 0 01-1-1zm14.155 8.845A9.946 9.946 0 0022 12c0-5.523-4.477-10-10-10S2 6.477 2 12a9.946 9.946 0 002.845 6.845l.002.001.002.001L6.4 18H17.6l1.553.846.002-.001z' },
+          { text: "Ensuring all the Pastor's needs are met.", icon: 'M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z' },
+          { text: "Providing security and maintaining order.", icon: 'M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z' },
+          { text: "Caring for the needs of guest speakers.", icon: 'M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207' },
+        ]
+      }
+    ];
 
-            function toggleMenu() {
-                sidebar.classList.toggle('-translate-x-full');
-                menuOverlay.classList.toggle('hidden');
-            }
+    // ---------------------------
+    // State
+    // ---------------------------
+    let state = {
+      activeIndex: 0,
+      filtered: null
+    };
 
-            function openModal(index) {
-                const modalTitle = document.getElementById('modal-title');
-                document.getElementById('edit-dept-index').value = index;
+    // ---------------------------
+    // Elements
+    // ---------------------------
+    const navContainer = document.getElementById('department-nav');
+    const contentArea = document.getElementById('content-area');
+    const menuBtn = document.getElementById('menu-btn');
+    const closeMenuBtn = document.getElementById('close-menu-btn');
+    const sidebar = document.getElementById('sidebar-panel');
+    const sidebarRoot = document.getElementById('sidebar');
+    const sidebarSearch = document.getElementById('sidebar-search');
+    const navSearch = document.getElementById('nav-search');
+    const addDeptBtn = document.getElementById('add-dept-btn') || document.getElementById('mobile-add-btn');
 
-                if (index === -1) { // Adding new
-                    modalTitle.textContent = "Add New Department";
-                    document.getElementById('dept-name').value = "";
-                    document.getElementById('dept-mission').value = "";
-                    document.getElementById('dept-hod').value = "";
-                    document.getElementById('dept-deputy').value = "";
-                    document.getElementById('dept-members').value = "";
-                    deleteBtn.classList.add('hidden');
-                } else { // Editing existing
-                    const dept = departments[index];
-                    modalTitle.textContent = `Edit ${dept.name}`;
-                    document.getElementById('dept-name').value = dept.name;
-                    document.getElementById('dept-mission').value = dept.mission;
-                    document.getElementById('dept-hod').value = dept.hod;
-                    document.getElementById('dept-deputy').value = dept.deputy;
-                    document.getElementById('dept-members').value = dept.members.join('\n');
-                    deleteBtn.classList.remove('hidden');
-                }
-                editModal.style.display = 'flex';
-            }
-            
-            function closeModal() {
-                 editModal.style.display = 'none';
-            }
-            
-            function saveDepartment() {
-                const index = parseInt(document.getElementById('edit-dept-index').value);
-                const name = document.getElementById('dept-name').value;
-                const mission = document.getElementById('dept-mission').value;
-                const hod = document.getElementById('dept-hod').value;
-                const deputy = document.getElementById('dept-deputy').value;
-                const members = document.getElementById('dept-members').value.split('\n').filter(m => m.trim() !== '');
+    // modal elements
+    const editModal = document.getElementById('edit-modal');
+    const backdrop = document.getElementById('modal-backdrop');
+    const cancelBtn = document.getElementById('cancel-edit-btn');
+    const saveBtn = document.getElementById('save-dept-btn');
+    const deleteBtn = document.getElementById('delete-dept-btn');
 
-                if (index === -1) { // New department
-                    departments.push({ name, mission, hod, deputy, members, responsibilities: [] });
-                    activeIndex = departments.length - 1;
-                } else { // Update existing
-                    departments[index] = { ...departments[index], name, mission, hod, deputy, members };
-                }
-                
-                buildNav();
-                renderDepartment(activeIndex);
-                closeModal();
-            }
+    // toast
+    const toast = document.getElementById('toast');
 
-            function deleteDepartment() {
-                const index = parseInt(document.getElementById('edit-dept-index').value);
-                if (index > -1) {
-                    departments.splice(index, 1);
-                    activeIndex = 0;
-                    buildNav();
-                    renderDepartment(activeIndex);
-                    closeModal();
-                }
-            }
-            
-            function renderDepartment(index) {
-                activeIndex = index;
-                const dept = departments[index];
-                if (!dept) {
-                    contentArea.innerHTML = `<div class="text-center p-8"><h2 class="text-2xl font-bold">No Department Selected</h2><p>Please add or select a department.</p></div>`;
-                    return;
-                };
-                
-                let responsibilitiesHtml = dept.responsibilities && dept.responsibilities.length > 0 ? dept.responsibilities.map(resp => `
-                    <div class="flex items-start space-x-4">
-                        <div class="flex-shrink-0"><div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-lg flex items-center justify-center"><svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="${resp.icon}"></path></svg></div></div>
-                        <div><p class="text-slate-600">${resp.text}</p></div>
-                    </div>`).join('') : '<p class="text-slate-500 col-span-1 lg:col-span-2">No specific responsibilities listed. Click "Edit" to add some.</p>';
+    // ---------------------------
+    // Utility helpers
+    // ---------------------------
+    function el(tag, attrs = {}, children = []) {
+      const node = document.createElement(tag);
+      for (const [k,v] of Object.entries(attrs)) {
+        if (k === 'class') node.className = v;
+        else if (k.startsWith('on') && typeof v === 'function') node.addEventListener(k.slice(2), v);
+        else node.setAttribute(k, v);
+      }
+      if (typeof children === 'string') node.innerHTML = children;
+      else children.forEach(c => node.appendChild(typeof c === 'string' ? document.createTextNode(c) : c));
+      return node;
+    }
 
-                let membersHtml = dept.members && dept.members.length > 0 ? dept.members.map(member => `<li class="text-slate-600">${member}</li>`).join('') : '<p class="text-slate-500">No members listed.</p>';
+    function showToast(msg = 'Saved') {
+      toast.querySelector('div').textContent = msg;
+      toast.classList.remove('hidden');
+      setTimeout(()=> toast.classList.add('hidden'), 1400);
+    }
 
-                contentArea.innerHTML = `
-                    <div class="bg-white p-6 sm:p-8 rounded-lg shadow-lg">
-                        <div class="flex justify-between items-start">
-                             <div>
-                                <h2 class="text-3xl md:text-4xl font-bold font-lora text-slate-900">${dept.name}</h2>
-                                <div class="w-24 h-1 bg-blue-600 my-4 rounded"></div>
-                             </div>
-                             <button id="edit-current-dept-btn" class="flex-shrink-0 ml-4 px-3 py-2 text-sm font-medium text-slate-600 bg-slate-100 rounded-md hover:bg-slate-200 transition-colors duration-200">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
-                             </button>
-                        </div>
-                        
-                        <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-8">
-                            <div>
-                                <h3 class="text-xl font-semibold font-lora text-slate-800 mb-2">Leadership</h3>
-                                <div class="space-y-2">
-                                    <p><strong class="font-medium text-slate-800">HOD:</strong> ${dept.hod || '[Not Set]'}</p>
-                                    <p><strong class="font-medium text-slate-800">Deputy:</strong> ${dept.deputy || '[Not Set]'}</p>
-                                </div>
-                            </div>
-                            <div>
-                                 <h3 class="text-xl font-semibold font-lora text-slate-800 mb-2">Team Members</h3>
-                                 <ul class="list-disc list-inside space-y-1">${membersHtml}</ul>
-                            </div>
-                        </div>
+    function clamp(n, a, b) { return Math.min(b, Math.max(a, n)); }
 
-                        <div class="mt-10"><h3 class="text-xl font-semibold font-lora text-slate-800 mb-2">Our Mission</h3><p class="text-slate-600 leading-relaxed">${dept.mission}</p></div>
-                        <div class="mt-10"><h3 class="text-xl font-semibold font-lora text-slate-800 mb-6">Key Responsibilities</h3><div class="grid grid-cols-1 lg:grid-cols-2 gap-x-8 gap-y-6">${responsibilitiesHtml}</div></div>
-                    </div>`;
+    // ---------------------------
+    // Render nav list
+    // ---------------------------
+    function buildNav(filter = '') {
+      navContainer.innerHTML = '';
+      const list = (filter ? departments.filter(d => d.name.toLowerCase().includes(filter.toLowerCase())) : departments);
+      list.forEach((dept, index) => {
+        const idx = departments.indexOf(dept); // original index
+        const a = el('a', {
+          href: '#',
+          class: 'block px-4 py-2 rounded-md text-sm transition-colors duration-150 text-slate-700 hover:bg-slate-50',
+          role: 'button'
+        }, [
+          el('div', { class: 'flex items-center justify-between' }, [
+            el('div', { class: 'flex items-center space-x-3' }, [
+              el('div', { class: 'w-9 h-9 rounded-lg flex items-center justify-center bg-gradient-to-br from-blue-50 to-white text-blue-600' }, [
+                el('svg', { class: 'w-5 h-5', viewBox: '0 0 24 24', fill: 'none', xmlns:'http://www.w3.org/2000/svg' }, [
+                  el('path', { d: 'M12 6v6l4 2', stroke: 'currentColor', 'stroke-width': '1.6', 'stroke-linecap': 'round', 'stroke-linejoin': 'round' })
+                ])
+              ]),
+              el('div', {}, [dept.name])
+            ]),
+            el('div', { class: 'text-xs text-slate-400' }, ['View'])
+          ])
+        ]);
 
-                document.getElementById('edit-current-dept-btn').addEventListener('click', () => openModal(index));
-                updateNavActiveState(index);
-            }
-            
-            function updateNavActiveState(index) {
-                 document.querySelectorAll('#department-nav a').forEach((link, i) => {
-                    if (i === index) {
-                        link.classList.add('bg-blue-100', 'text-blue-700', 'font-semibold');
-                        link.classList.remove('text-slate-600', 'hover:bg-slate-100');
-                    } else {
-                        link.classList.remove('bg-blue-100', 'text-blue-700', 'font-semibold');
-                        link.classList.add('text-slate-600', 'hover:bg-slate-100');
-                    }
-                });
-            }
-
-            function buildNav() {
-                navContainer.innerHTML = '';
-                departments.forEach((dept, index) => {
-                    const link = document.createElement('a');
-                    link.href = '#';
-                    link.textContent = dept.name;
-                    link.className = 'block px-4 py-2.5 rounded-md text-sm transition-colors duration-200';
-                    link.addEventListener('click', (e) => {
-                        e.preventDefault();
-                        renderDepartment(index);
-                        if (window.innerWidth < 768) {
-                            toggleMenu();
-                        }
-                    });
-                    navContainer.appendChild(link);
-                });
-            }
-
-            menuBtn.addEventListener('click', toggleMenu);
-            closeMenuBtn.addEventListener('click', toggleMenu);
-            menuOverlay.addEventListener('click', toggleMenu);
-            cancelBtn.addEventListener('click', closeModal);
-            saveBtn.addEventListener('click', saveDepartment);
-            deleteBtn.addEventListener('click', deleteDepartment);
-            addBtn.addEventListener('click', () => openModal(-1));
-
-            buildNav();
-            renderDepartment(activeIndex);
+        a.addEventListener('click', e => {
+          e.preventDefault();
+          // find original index
+          const realIndex = idx;
+          renderDepartment(realIndex);
+          state.activeIndex = realIndex;
+          updateNavActive(realIndex);
+          // if mobile, hide sidebar
+          if (window.innerWidth < 768) toggleSidebar(false);
+          // smooth scroll to content top for mobile
+          document.getElementById('content-area').scrollIntoView({ behavior: 'smooth', block: 'start' });
         });
-    </script>
+
+        navContainer.appendChild(a);
+      });
+
+      // set active highlight
+      updateNavActive(state.activeIndex);
+    }
+
+    // ---------------------------
+    // Update nav active state
+    // ---------------------------
+    function updateNavActive(active) {
+      document.querySelectorAll('#department-nav a').forEach((link, i) => {
+        const isActive = (i === Array.from(document.querySelectorAll('#department-nav a')).indexOf(document.querySelectorAll('#department-nav a')[Array.from(document.querySelectorAll('#department-nav a')).indexOf(link)]) && departments[i] && departments[i].name === departments[active]?.name) || link.textContent.trim().startsWith(departments[active]?.name);
+        // simpler approach: compare link text content to active dept name
+        const name = link.querySelector('div > div:nth-child(2)') ? link.querySelector('div > div:nth-child(2)').textContent.trim() : link.textContent.trim();
+        if (name === departments[active]?.name) {
+          link.classList.add('bg-blue-50', 'text-blue-700', 'font-semibold');
+        } else {
+          link.classList.remove('bg-blue-50', 'text-blue-700', 'font-semibold');
+          link.classList.add('text-slate-700');
+        }
+      });
+    }
+
+    // ---------------------------
+    // Render Department detail
+    // ---------------------------
+    function renderDepartment(index) {
+      const dept = departments[index];
+      if (!dept) {
+        contentArea.innerHTML = `<div class="bg-white p-6 rounded-xl shadow text-center"><h3 class="text-lg font-semibold">No department</h3><p class="text-slate-500 mt-2">Add a department to get started.</p></div>`;
+        return;
+      }
+
+      // responsibilities HTML
+      const respHtml = dept.responsibilities && dept.responsibilities.length
+        ? dept.responsibilities.map(r => `
+            <div class="flex items-start gap-4 p-3 rounded-md hover:bg-slate-50 transition">
+              <div class="w-12 h-12 flex items-center justify-center rounded-lg bg-blue-50 text-blue-600 flex-shrink-0">
+                <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="${r.icon || ''}" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </div>
+              <div><p class="text-slate-600">${r.text}</p></div>
+            </div>
+        `).join('')
+        : `<p class="text-slate-500">No specific responsibilities listed. Use Edit to add some.</p>`;
+
+      const membersHtml = dept.members && dept.members.length
+        ? `<ul class="list-disc list-inside space-y-1">${dept.members.map(m => `<li class="text-slate-600">${m}</li>`).join('')}</ul>`
+        : `<p class="text-slate-500">No members listed</p>`;
+
+      // build content
+      contentArea.innerHTML = `
+        <div class="fade-slide show bg-white rounded-xl shadow-lg border border-slate-100 p-5 md:p-8">
+          <div class="flex items-start justify-between gap-4">
+            <div>
+              <h2 class="text-2xl md:text-3xl font-lora font-bold text-slate-900">${dept.name}</h2>
+              <div class="w-20 h-1 bg-blue-600 rounded mt-3"></div>
+              <p class="text-xs text-slate-400 mt-3">Leadership and team overview</p>
+            </div>
+            <div class="flex items-start gap-2">
+              <button id="edit-current-dept-btn" class="px-3 py-2 bg-slate-100 rounded-md text-sm text-slate-700 hover:bg-slate-200" aria-label="Edit department">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none"><path stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536M6.5 21.036H3v-3.572L16.732 3.732"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <h3 class="text-base font-semibold font-lora text-slate-800">Leadership</h3>
+              <div class="mt-2 text-sm">
+                <p><span class="font-medium text-slate-800">HOD:</span> <span class="text-slate-600">${dept.hod || '[Not set]'}</span></p>
+                <p class="mt-1"><span class="font-medium text-slate-800">Deputy:</span> <span class="text-slate-600">${dept.deputy || '[Not set]'}</span></p>
+              </div>
+              <div class="mt-4">
+                <h4 class="text-sm font-semibold text-slate-700">Team Members</h4>
+                <div class="mt-2 text-sm">${membersHtml}</div>
+              </div>
+            </div>
+
+            <div>
+              <h3 class="text-base font-semibold font-lora text-slate-800">Our Mission</h3>
+              <p class="mt-2 text-slate-600 text-sm leading-relaxed">${dept.mission}</p>
+              <div class="mt-4">
+                <h4 class="text-sm font-semibold text-slate-700">Key Responsibilities</h4>
+                <div class="mt-3 space-y-2 text-sm">${respHtml}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+
+      // attach edit handler
+      document.getElementById('edit-current-dept-btn').addEventListener('click', () => openModal(index));
+
+      // IntersectionObserver for subtle reveal on scroll (if more content appended)
+      const card = contentArea.querySelector('.fade-slide');
+      if (card) {
+        setTimeout(()=> card.classList.add('show'), 60);
+      }
+    }
+
+    // ---------------------------
+    // Sidebar toggling
+    // ---------------------------
+    function toggleSidebar(show = null) {
+      // if show === undefined toggle, else set explicit
+      const isHidden = sidebarRoot.classList.contains('hidden-on-mobile');
+      if (show === null) {
+        // toggle by class on root
+        if (sidebarRoot.classList.contains('translate-x-0')) {
+          sidebarRoot.classList.remove('translate-x-0');
+          sidebarRoot.classList.add('-translate-x-full');
+        } else {
+          sidebarRoot.classList.remove('-translate-x-full');
+          sidebarRoot.classList.add('translate-x-0');
+        }
+      } else {
+        if (show) {
+          sidebarRoot.classList.remove('-translate-x-full');
+          sidebarRoot.classList.add('translate-x-0');
+        } else {
+          sidebarRoot.classList.remove('translate-x-0');
+          sidebarRoot.classList.add('-translate-x-full');
+        }
+      }
+    }
+
+    // adapt initial classes for mobile slide
+    (function initSidebarClasses(){
+      // use Tailwind style classes via classList for runtime toggling
+      sidebarRoot.classList.add('md:relative', 'md:translate-x-0');
+      // for small screens, hide by translating left
+      if (window.innerWidth < 768) {
+        sidebarRoot.classList.add('-translate-x-full', 'fixed', 'inset-y-0', 'left-0', 'w-80', 'bg-transparent', 'z-40');
+        // but the inner panel holds the white card
+      } else {
+        sidebarRoot.classList.remove('-translate-x-full');
+      }
+    })();
+
+    // ---------------------------
+    // Modal open/close/edit/save logic
+    // ---------------------------
+    function openModal(index = -1) {
+      document.getElementById('edit-dept-index').value = index;
+      const title = document.getElementById('modal-title');
+
+      if (index === -1) {
+        title.textContent = 'Add new department';
+        document.getElementById('dept-name').value = '';
+        document.getElementById('dept-mission').value = '';
+        document.getElementById('dept-hod').value = '';
+        document.getElementById('dept-deputy').value = '';
+        document.getElementById('dept-members').value = '';
+        document.getElementById('dept-resp').value = '';
+        deleteBtn.classList.add('hidden');
+      } else {
+        const d = departments[index];
+        title.textContent = `Edit ${d.name}`;
+        document.getElementById('dept-name').value = d.name || '';
+        document.getElementById('dept-mission').value = d.mission || '';
+        document.getElementById('dept-hod').value = d.hod || '';
+        document.getElementById('dept-deputy').value = d.deputy || '';
+        document.getElementById('dept-members').value = (d.members || []).join('\n');
+        document.getElementById('dept-resp').value = (d.responsibilities || []).map(r => r.text).join('\n');
+        deleteBtn.classList.remove('hidden');
+      }
+
+      editModal.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal() {
+      editModal.classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+
+    function saveDepartment() {
+      const index = parseInt(document.getElementById('edit-dept-index').value);
+      const name = document.getElementById('dept-name').value.trim() || 'Untitled Department';
+      const mission = document.getElementById('dept-mission').value.trim() || '[No mission provided]';
+      const hod = document.getElementById('dept-hod').value.trim();
+      const deputy = document.getElementById('dept-deputy').value.trim();
+      const members = document.getElementById('dept-members').value.split('\n').map(s => s.trim()).filter(Boolean);
+      const respLines = document.getElementById('dept-resp').value.split('\n').map(s => s.trim()).filter(Boolean);
+
+      const responsibilities = respLines.map(txt => ({ text: txt, icon: '' })); // icons blank by default
+
+      if (index === -1) {
+        departments.push({ name, mission, hod, deputy, members, responsibilities });
+        state.activeIndex = departments.length - 1;
+      } else {
+        departments[index] = { ...departments[index], name, mission, hod, deputy, members, responsibilities };
+        state.activeIndex = index;
+      }
+
+      buildNav(sidebarSearch.value);
+      renderDepartment(state.activeIndex);
+      closeModal();
+      showToast('Saved');
+    }
+
+    function deleteDepartment() {
+      const idx = parseInt(document.getElementById('edit-dept-index').value);
+      if (!isNaN(idx) && idx >= 0 && idx < departments.length) {
+        departments.splice(idx, 1);
+        state.activeIndex = clamp(state.activeIndex, 0, Math.max(0, departments.length - 1));
+        buildNav(sidebarSearch.value);
+        renderDepartment(state.activeIndex);
+        closeModal();
+        showToast('Deleted');
+      }
+    }
+
+    // ---------------------------
+    // Search / filter handlers
+    // ---------------------------
+    sidebarSearch.addEventListener('input', (e) => {
+      const q = e.target.value.trim();
+      buildNav(q);
+    });
+    navSearch && navSearch.addEventListener('input', (e) => {
+      const q = e.target.value.trim();
+      buildNav(q);
+    });
+
+    // ---------------------------
+    // small keyboard accessibility for nav
+    // ---------------------------
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowDown') {
+        state.activeIndex = clamp(state.activeIndex + 1, 0, departments.length - 1);
+        renderDepartment(state.activeIndex);
+        updateNavActive(state.activeIndex);
+      } else if (e.key === 'ArrowUp') {
+        state.activeIndex = clamp(state.activeIndex - 1, 0, departments.length - 1);
+        renderDepartment(state.activeIndex);
+        updateNavActive(state.activeIndex);
+      } else if (e.key === 'Escape') {
+        // close modal or mobile sidebar
+        if (!editModal.classList.contains('hidden')) closeModal();
+        if (window.innerWidth < 768 && !sidebarRoot.classList.contains('-translate-x-full')) toggleSidebar(false);
+      }
+    });
+
+    // ---------------------------
+    // Event wires
+    // ---------------------------
+    menuBtn.addEventListener('click', () => {
+      // show sidebar on mobile by toggling classes
+      sidebarRoot.classList.remove('-translate-x-full');
+      sidebarRoot.classList.add('translate-x-0', 'fixed', 'inset-y-0', 'left-0', 'w-80', 'bg-transparent', 'z-40');
+    });
+    closeMenuBtn.addEventListener('click', () => {
+      sidebarRoot.classList.add('-translate-x-full');
+      sidebarRoot.classList.remove('translate-x-0');
+    });
+
+    document.getElementById('mobile-add-btn')?.addEventListener('click', () => openModal(-1));
+    addDeptBtn?.addEventListener('click', () => openModal(-1));
+    cancelBtn?.addEventListener('click', closeModal);
+    backdrop?.addEventListener('click', closeModal);
+    saveBtn?.addEventListener('click', saveDepartment);
+    deleteBtn?.addEventListener('click', deleteDepartment);
+
+    // handle modal close on Escape
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !editModal.classList.contains('hidden')) closeModal();
+    });
+
+    // ---------------------------
+    // Init
+    // ---------------------------
+    buildNav();
+    renderDepartment(state.activeIndex);
+
+    // subtle reveal for content area on load
+    document.addEventListener('DOMContentLoaded', () => {
+      setTimeout(() => {
+        document.querySelectorAll('.fade-slide').forEach(el => el.classList.add('show'));
+      }, 150);
+    });
+
+    // responsive adjustments on resize - ensure sidebar classes look correct
+    window.addEventListener('resize', () => {
+      if (window.innerWidth >= 768) {
+        sidebarRoot.classList.remove('-translate-x-full', 'fixed', 'inset-y-0', 'left-0', 'w-80', 'bg-transparent', 'z-40');
+      } else {
+        // keep sidebar hidden on small screens by default
+        if (!sidebarRoot.classList.contains('-translate-x-full') && !sidebarRoot.classList.contains('translate-x-0')) {
+          sidebarRoot.classList.add('-translate-x-full');
+        }
+      }
+    });
+  </script>
 </body>
 </html>
-
